@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/bestseller/terraform-netbox-provider/provider"
+	"github.com/BESTSELLER/terraform-provider-netbox/provider"
 	"github.com/hashicorp/terraform-plugin-sdk/plugin"
 )
 

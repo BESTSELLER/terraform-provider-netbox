@@ -1,7 +1,7 @@
 package provider
 
 import (
-	"bitbucket.org/bestsellerit/terraform-provider-harbor/client"
+	"github.com/BESTSELLER/terraform-provider-netbox/client"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -17,17 +17,11 @@ func Provider() terraform.ResourceProvider {
 			"api_token": {
 				Type:     schema.TypeString,
 				Optional: true,
-			}
+			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"harbor_config_auth":    resourceConfigAuth(),
-			"harbor_config_email":   resourceConfigEmail(),
-			"harbor_config_system":  resourceConfigSystem(),
-			"harbor_project":        resourceProject(),
-			"harbor_project_member": resourceMembers(),
-			"harbor_tasks":          resourceTasks(),
-			"harbor_robot_account":  resourceRobotAccount(),
+			"netbox_auth": resourceAvailablePrefixes(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -36,7 +30,7 @@ func Provider() terraform.ResourceProvider {
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	endpoint := d.Get("endpoint").(string)
-	api_token := d.Get("api_token").(string)
+	apiToken := d.Get("api_token").(string)
 
-	return client.NewClient(endpoint, token), nil
+	return client.NewClient(endpoint, apiToken), nil
 }

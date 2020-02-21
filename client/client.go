@@ -10,22 +10,22 @@ import (
 
 type Client struct {
 	endpoint   string
-	api_token  string
+	apiToken   string
 	httpClient *http.Client
 }
 
 // NewClient creates common settings
-func NewClient(url string, username string, password string, insecure bool) *Client {
+func NewClient(endpoint string, apitoken string) *Client {
 
 	return &Client{
 		endpoint:   endpoint,
-		api_token:  api_token,
+		apiToken:   apitoken,
 		httpClient: &http.Client{},
 	}
 }
 
 func (c *Client) SendRequest(method string, path string, payload interface{}, statusCode int) (value string, err error) {
-	url := c.url + path
+	url := c.endpoint + path
 	client := &http.Client{}
 
 	b := new(bytes.Buffer)
@@ -39,7 +39,7 @@ func (c *Client) SendRequest(method string, path string, payload interface{}, st
 		return "", err
 	}
 
-	req.Header.Add("Authorization", "token:"+api_token)
+	req.Header.Add("Authorization", "token:"+c.apiToken)
 	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := client.Do(req)
