@@ -1,4 +1,4 @@
-module bitbucket.org/bestseller/terraform-provider-netbox/provider
+module github.com/bestseller/terraform-netbox-provider/provider
 
 go 1.13
 
