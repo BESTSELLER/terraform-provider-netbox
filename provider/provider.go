@@ -21,7 +21,11 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"netbox_auth": resourceAvailablePrefixes(),
+			"netbox_available_prefix": resourceAvailablePrefixes(),
+		},
+		DataSourcesMap: map[string]*schema.Resource{
+			"netbox_prefix": dataPrefix(),
+			"netbox_sites":  dataSites(),
 		},
 
 		ConfigureFunc: providerConfigure,

@@ -39,7 +39,7 @@ func (c *Client) SendRequest(method string, path string, payload interface{}, st
 		return "", err
 	}
 
-	req.Header.Add("Authorization", "token:"+c.apiToken)
+	req.Header.Add("Authorization", "token "+c.apiToken)
 	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := client.Do(req)
