@@ -51,7 +51,7 @@ jobs:
           command: |
             curl -X POST \
               https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases \
-              -H "authorization: Basic $GH_TOKEN" \
+              -H "authorization: token $GH_TOKEN" \
               -H 'content-type: application/json' \
               -d '{
               "tag_name": "'$CIRCLE_TAG'",
@@ -64,14 +64,14 @@ jobs:
       - run:
           name: Upload release assets
           command: |
-            id=$(curl https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases/latest -H "authorization: Basic $GH_TOKEN" | jq '.id')
+            id=$(curl https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases/latest -H "authorization: token $GH_TOKEN" | jq '.id')
       
             FILES=$(ls -l terraform-provider-netbox* | awk '{print $9}')
             for f in $FILES
             do
               GH_ASSET="https://uploads.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases/$id/assets?name=$(basename $f)"
 
-              curl --data-binary @"$f" -H "authorization: Basic $GH_TOKEN" -H "Content-Type: application/zip" $GH_ASSET | jq
+              curl --data-binary @"$f" -H "authorization: token $GH_TOKEN" -H "Content-Type: application/zip" $GH_ASSET | jq
             done
 
 workflows:
