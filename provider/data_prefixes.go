@@ -2,6 +2,7 @@ package provider
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -99,6 +100,9 @@ func dataPrefixRead(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*client.Client)
 	cidr := d.Get("cidr_notation").(string)
 	newCidr := strings.Replace(cidr, "/", "%2F", 1)
+	if newCidr == "" {
+		return fmt.Errorf("[ERROR] 'cidr_notation' is empty")
+	}
 	prefixPath := "api/ipam/prefixes/?prefix=" + newCidr
 
 	resp, err := apiClient.SendRequest("GET", prefixPath, nil, 200)
