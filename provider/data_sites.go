@@ -82,7 +82,7 @@ func dataSites() *schema.Resource {
 func dataSitesRead(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*client.Client)
 	siteName := d.Get("name").(string)
-	sitesPath := "api/dcim/sites/?name=" + siteName
+	sitesPath := "/dcim/sites/?name=" + siteName
 
 	resp, err := apiClient.SendRequest("GET", sitesPath, nil, 200)
 	if err != nil {

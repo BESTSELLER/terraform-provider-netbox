@@ -103,7 +103,7 @@ func dataPrefixRead(d *schema.ResourceData, m interface{}) error {
 	if newCidr == "" {
 		return fmt.Errorf("[ERROR] 'cidr_notation' is empty")
 	}
-	prefixPath := "api/ipam/prefixes/?prefix=" + newCidr
+	prefixPath := "/ipam/prefixes/?prefix=" + newCidr
 
 	resp, err := apiClient.SendRequest("GET", prefixPath, nil, 200)
 	if err != nil {

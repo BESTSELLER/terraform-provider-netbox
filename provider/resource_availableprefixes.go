@@ -2,6 +2,7 @@ package provider
 
 import (
 	"encoding/json"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-var pathAvailablePrefixes = "api/ipam/prefixes/"
+var pathAvailablePrefixes = "/ipam/prefixes/"
 
 type AvailablePrefixes struct {
 	PrefixLenght int    `json:"prefix_length"`
@@ -18,6 +19,13 @@ type AvailablePrefixes struct {
 	Status       string `json:"status,omitempty"`
 	Role         int    `json:"role,omitempty"`
 	Description  string `json:"description,omitempty"`
+}
+
+type responeListOfPrefixes struct {
+	Count    int                        `json:"count"`
+	Next     interface{}                `json:"next"`
+	Previous interface{}                `json:"previous"`
+	Results  []reponseAvailablePrefixes `json:"results"`
 }
 
 type reponseAvailablePrefixes struct {
@@ -92,6 +100,9 @@ func resourceAvailablePrefixes() *schema.Resource {
 		Read:   resourceAvailablePrefixRead,
 		Update: resourceAvailablePrefixUpdate,
 		Delete: resourceAvailablePrefixDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 	}
 }
 
@@ -108,22 +119,42 @@ func resourceAvailablePrefixCreate(d *schema.ResourceData, m interface{}) error 
 	var jsonData reponseAvailablePrefixes
 	json.Unmarshal([]byte(resp), &jsonData)
 
-	d.Set("prefix_id", jsonData.ID)
-	d.Set("cidr_notation", jsonData.Prefix)
-	d.SetId(randomString(15))
+	d.SetId(pathAvailablePrefixes + strconv.Itoa(jsonData.ID) + "/")
 	return resourceAvailablePrefixRead(d, m)
 }
 
 func resourceAvailablePrefixRead(d *schema.ResourceData, m interface{}) error {
-	// apiClient := m.(*client.Client)
+	apiClient := m.(*client.Client)
+	resp, err := apiClient.SendRequest("GET", d.Id(), nil, 200)
+	if err != nil {
+		return err
+	}
+	var jsonData reponseAvailablePrefixes
+	json.Unmarshal([]byte(resp), &jsonData)
+
+	re := regexp.MustCompile(`(?m)(?:[0-9]{1,3}\.){3}[0-9]{1,3}/`)
+	prefixLenght, _ := strconv.Atoi(re.ReplaceAllString(jsonData.Prefix, ""))
+
+	resp2, err := apiClient.SendRequest("GET", pathAvailablePrefixes+"?q="+jsonData.Prefix, nil, 200)
+	if err != nil {
+		return err
+	}
+	var jsonData2 responeListOfPrefixes
+	json.Unmarshal([]byte(resp2), &jsonData2)
+
+	d.Set("cidr_notation", jsonData.Prefix)
+	d.Set("description", jsonData.Description)
+	d.Set("prefix_length", prefixLenght)
+	d.Set("prefix_id", jsonData.ID)
+	d.Set("parent_prefix_id", jsonData2.Results[0].ID)
+	d.SetId(pathAvailablePrefixes + strconv.Itoa(jsonData.ID) + "/")
+
 	return nil
 }
 
 func resourceAvailablePrefixUpdate(d *schema.ResourceData, m interface{}) error {
 	apiClient, body := availablePrefixBody(d, m)
-	id := strconv.Itoa(d.Get("prefix_id").(int))
-
-	path := pathAvailablePrefixes + id + "/"
+	path := d.Id()
 
 	apiClient.SendRequest("PATCH", path, body, 200)
 
@@ -132,9 +163,8 @@ func resourceAvailablePrefixUpdate(d *schema.ResourceData, m interface{}) error 
 
 func resourceAvailablePrefixDelete(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*client.Client)
-	id := strconv.Itoa(d.Get("prefix_id").(int))
-	prefixPath := pathAvailablePrefixes + id + "/"
-	apiClient.SendRequest("DELETE", prefixPath, nil, 204)
+
+	apiClient.SendRequest("DELETE", d.Id(), nil, 204)
 	return nil
 }
 

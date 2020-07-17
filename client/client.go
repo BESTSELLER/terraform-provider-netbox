@@ -58,7 +58,7 @@ func (c *Client) SendRequest(method string, path string, payload interface{}, st
 	if statusCode != 0 {
 		if resp.StatusCode != statusCode {
 
-			return "", fmt.Errorf("[ERROR] unexpected status code got: %v expected: %v \n %v", resp.StatusCode, statusCode, strbody)
+			return "", fmt.Errorf("[ERROR] unexpected status code got: %v expected: %v  \n %v  \n %v", resp.StatusCode, statusCode, strbody, url)
 		}
 	}
 
