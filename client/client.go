@@ -8,8 +8,12 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+
+	"github.com/BESTSELLER/terraform-provider-netbox/models"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
+// Client holds the client info for netbox
 type Client struct {
 	endpoint string
 	apiToken string
@@ -17,42 +21,127 @@ type Client struct {
 
 // NewClient creates common settings
 func NewClient(endpoint string, apitoken string) *Client {
-
 	return &Client{
 		endpoint: endpoint,
 		apiToken: apitoken,
 	}
 }
 
-const pathAvailablePrefixes = "/ipam/prefixes/"
+// AvailablePrefixBody returns the body needed to get available prefix
+func AvailablePrefixBody(d *schema.ResourceData) models.AvailablePrefixes {
+	return models.AvailablePrefixes{
+		PrefixLength: d.Get("prefix_length").(int),
+		Site:         d.Get("site").(int),
+		Tenant:       d.Get("tenant").(int),
+		Status:       d.Get("status").(string),
+		Role:         d.Get("role").(int),
+		Description:  d.Get("description").(string),
+	}
+}
+
+// GetPrefix will return a prefix
+func (client *Client) GetPrefix(newCidr string) (*models.ReponsePrefix, error) {
+	if newCidr == "" {
+		return nil, fmt.Errorf("[ERROR] 'cidr_notation' is empty")
+	}
+	prefixPath := models.PathAvailablePrefixes + "?prefix=" + newCidr
+
+	resp, err := client.sendRequest("GET", prefixPath, nil, 200)
+	if err != nil {
+		return nil, err
+	}
+
+	var jsonData models.ReponsePrefix
+	err = json.Unmarshal([]byte(resp), &jsonData)
+	if err != nil {
+		return nil, err
+	}
+
+	return &jsonData, nil
+}
+
+// GetSite will return a site by name
+func (client *Client) GetSite(siteName string) (*models.ResponseSites, error) {
+	sitesPath := "/dcim/sites/?name=" + siteName
+
+	resp, err := client.sendRequest("GET", sitesPath, nil, 200)
+	if err != nil {
+		return nil, err
+	}
+
+	var jsonData models.ResponseSites
+	err = json.Unmarshal([]byte(resp), &jsonData)
+	if err != nil {
+		return nil, err
+	}
+
+	return &jsonData, nil
+}
+
+// DeletePrefix will delete a given prefix
+func (client *Client) DeletePrefix(d *schema.ResourceData) error {
+	_, err := client.sendRequest("DELETE", d.Id(), nil, 204)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//UpdatePrefix will patch a prefix
+func (client *Client) UpdatePrefix(d *schema.ResourceData) error {
+	body := AvailablePrefixBody(d)
+	_, err := client.sendRequest("PATCH", d.Id(), body, 200)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// CreatePrefix will create the prefix
+func (client *Client) CreatePrefix(body *models.AvailablePrefixes, parentID int) (*models.ReponseAvailablePrefixes, error) {
+	path := fmt.Sprintf("%s%d/available-prefixes/", models.PathAvailablePrefixes, parentID)
+
+	resp, err := client.sendRequest("POST", path, body, 201)
+	if err != nil {
+		return nil, err
+	}
+	var jsonData models.ReponseAvailablePrefixes
+	err = json.Unmarshal([]byte(resp), &jsonData)
+	if err != nil {
+		return nil, err
+	}
+	return &jsonData, nil
+}
 
 // GetAvailablePrefix will return all available prefixes
-func (client *Client) GetAvailablePrefix(id string) (*GetAvailablePrefixResponse, error) {
-
+func (client *Client) GetAvailablePrefix(id string) (*models.GetAvailablePrefixResponse, error) {
 	resp, err := client.sendRequest("GET", id, nil, 200)
 	if err != nil {
 		return nil, err
 	}
-	var jsonData ReponseAvailablePrefixes
-	json.Unmarshal([]byte(resp), &jsonData)
+	var jsonData models.ReponseAvailablePrefixes
+	err = json.Unmarshal([]byte(resp), &jsonData)
+	if err != nil {
+		return nil, err
+	}
 
 	re := regexp.MustCompile(`(?m)(?:[0-9]{1,3}\.){3}[0-9]{1,3}/`)
 	prefixLength, _ := strconv.Atoi(re.ReplaceAllString(jsonData.Prefix, ""))
 
-	resp2, err := client.sendRequest("GET", pathAvailablePrefixes+"?q="+jsonData.Prefix, nil, 200)
+	resp2, err := client.sendRequest("GET", models.PathAvailablePrefixes+"?q="+jsonData.Prefix, nil, 200)
 	if err != nil {
 		return nil, err
 	}
-	var jsonData2 ResponeListOfPrefixes
+	var jsonData2 models.ResponeListOfPrefixes
 	err = json.Unmarshal([]byte(resp2), &jsonData2)
 	if err != nil {
 		return nil, err
 	}
 
-	returnValue := &GetAvailablePrefixResponse{
+	returnValue := &models.GetAvailablePrefixResponse{
 		PrefixLength:   prefixLength,
 		Description:    jsonData.Description,
-		ID:             pathAvailablePrefixes + strconv.Itoa(jsonData.ID) + "/",
+		ID:             models.PathAvailablePrefixes + strconv.Itoa(jsonData.ID) + "/",
 		ParentPrefixID: jsonData2.Results[0].ID,
 		Prefix:         jsonData.Prefix,
 		PrefixID:       jsonData.ID,
@@ -93,7 +182,6 @@ func (client *Client) sendRequest(method string, path string, payload interface{
 
 	if statusCode != 0 {
 		if resp.StatusCode != statusCode {
-
 			return "", fmt.Errorf("[ERROR] unexpected status code got: %v expected: %v  \n %v  \n %v", resp.StatusCode, statusCode, strbody, url)
 		}
 	}
