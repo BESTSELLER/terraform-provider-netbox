@@ -48,8 +48,7 @@ jobs:
       - run:
           name: Upload release assets
           command: |
-            id=$(curl https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases | jq -r --arg tag $CIRCLE_TAG '.[] | select(.tag_name == $tag) | .id')
-
+            id=$(curl https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases -H "authorization: token $GH_TOKEN" | jq -r --arg tag $CIRCLE_TAG '.[] | select(.tag_name == $tag) | .id')
             FILES=$(ls -l terraform-provider-netbox* | awk '{print $9}')
             for f in $FILES
             do
