@@ -2,7 +2,6 @@ package provider
 
 import (
 	"encoding/json"
-	"regexp"
 	"strconv"
 	"time"
 
@@ -125,29 +124,18 @@ func resourceAvailablePrefixCreate(d *schema.ResourceData, m interface{}) error 
 
 func resourceAvailablePrefixRead(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*client.Client)
-	resp, err := apiClient.SendRequest("GET", d.Id(), nil, 200)
+
+	resp, err := apiClient.GetAvailablePrefix(d.Id())
 	if err != nil {
 		return err
 	}
-	var jsonData reponseAvailablePrefixes
-	json.Unmarshal([]byte(resp), &jsonData)
 
-	re := regexp.MustCompile(`(?m)(?:[0-9]{1,3}\.){3}[0-9]{1,3}/`)
-	prefixLenght, _ := strconv.Atoi(re.ReplaceAllString(jsonData.Prefix, ""))
-
-	resp2, err := apiClient.SendRequest("GET", pathAvailablePrefixes+"?q="+jsonData.Prefix, nil, 200)
-	if err != nil {
-		return err
-	}
-	var jsonData2 responeListOfPrefixes
-	json.Unmarshal([]byte(resp2), &jsonData2)
-
-	d.Set("cidr_notation", jsonData.Prefix)
-	d.Set("description", jsonData.Description)
-	d.Set("prefix_length", prefixLenght)
-	d.Set("prefix_id", jsonData.ID)
-	d.Set("parent_prefix_id", jsonData2.Results[0].ID)
-	d.SetId(pathAvailablePrefixes + strconv.Itoa(jsonData.ID) + "/")
+	d.Set("cidr_notation", resp.Prefix)
+	d.Set("description", resp.Description)
+	d.Set("prefix_length", resp.PrefixLength)
+	d.Set("prefix_id", resp.ID)
+	d.Set("parent_prefix_id", resp.ParentPrefixID)
+	d.SetId(resp.ID)
 
 	return nil
 }
