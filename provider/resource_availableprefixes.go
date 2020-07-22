@@ -89,7 +89,7 @@ func resourceAvailablePrefixRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", resp.Description)
 	d.Set("prefix_length", resp.PrefixLength)
 	d.Set("prefix_id", resp.ID)
-	d.Set("parent_prefix_id", resp.ParentPrefixID)
+	d.Set("parent_prefix_id", d.Get("parent_prefix_id").(int))
 
 	return nil
 }
