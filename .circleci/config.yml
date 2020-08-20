@@ -35,6 +35,11 @@ workflows:
           vault-path: ES/terraform-stuff/dev
           output-type: env
           context: es02-dev
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+.[0-9]+.[0-9]+/
       - build:
           requires:
             - secret-injector/dump-secrets
