@@ -12,14 +12,19 @@ jobs:
       - checkout
       - attach_workspace:
           at: /tmp
-      - run: go get -v ./...
+      - run:
+          name: go get
+          command: |
+            which go
+            go get -v ./...
       - run:
           name: Go Releaser
           command: |
             source /tmp/secrets.env
 
-            echo -e "$GPG_PRIVATE_KEY" | base64 --decode | gpg --import
-            gpg --no-tty --batch --passphrase "$GPG_PASSPHRASE" --pinentry-mode loopback --output secrets.env --decrypt secrets.env.gpg
+            echo -e "$GPG_PRIVATE_KEY" | base64 --decode > private.key
+            echo "$GPG_PASSPHRASE" | gpg --pinentry-mode loopback --batch --yes --passphrase-fd 0 private.key
+
             curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
             goreleaser release --snapshot --rm-dist
   build:
