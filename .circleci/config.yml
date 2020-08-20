@@ -1,67 +1,50 @@
-version: 2
+version: 2.1
+
+orbs:
+  secret-injector: bestsellerit/secret-injector@0.2.32
+
 
 jobs:
-  test:
-    docker:
-      - image: circleci/golang:1.14
-    steps:
-      - checkout
-      - run: go get -v ./...
   build:
     docker:
       - image: circleci/golang:1.14
     steps:
       - checkout
-      - run: 
-          name: update n upgrade
-          command: |
-            sudo apt update
-            sudo apt upgrade -y
-      - run: go get -v ./...
+      - attach_workspace:
+          at: /tmp
       - run:
-          name: Build terraform provider for multiple platforms
+          name: go get
           command: |
-            package_name=terraform-provider-netbox
-
-            platforms=(
-            "darwin/amd64"
-            "linux/amd64"
-            "windows/amd64" )
-
-            for platform in "${platforms[@]}"
-            do
-                platform_split=(${platform//\// })
-                GOOS=${platform_split[0]}
-                GOARCH=${platform_split[1]}
-                output_name=$package_name
-                if [ $GOOS = "windows" ]; then
-                    output_name+='.exe'
-                fi
-
-                env CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build -o $output_name
-
-                zip -v terraform-provider-netbox-$GOOS-$GOARCH $output_name
-                rm $output_name
-            done
-            cat /etc/*release
-            ls -lh
+            go get -v ./...
       - run:
-          name: Upload release assets
+          name: Go Releaser
           command: |
-            id=$(curl https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases -H "authorization: token $GH_TOKEN" | jq -r --arg tag $CIRCLE_TAG '.[] | select(.tag_name == $tag) | .id')
-            FILES=$(ls -l terraform-provider-netbox* | awk '{print $9}')
-            for f in $FILES
-            do
-              GH_ASSET="https://uploads.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases/$id/assets?name=$(basename $f)"
+            source /tmp/secrets.env
 
-              curl --data-binary @"$f" -H "authorization: token $GH_TOKEN" -H "Content-Type: application/zip" $GH_ASSET | jq
-            done
+            echo -e "$GPG_PRIVATE_KEY" | base64 --decode > $HOME/private.key
+            gpg --pinentry-mode loopback --batch --yes --import $HOME/private.key
+
+            curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
+            sudo mv ./bin/goreleaser /usr/bin/goreleaser
+            rm -rf ./bin
+            goreleaser release --rm-dist
 
 workflows:
   version: 2
   build-n-release:
     jobs:
+      - secret-injector/dump-secrets:
+          vault-path: ES/terraform-stuff/dev
+          output-type: env
+          context: es02-dev
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+.[0-9]+.[0-9]+/
       - build:
+          requires:
+            - secret-injector/dump-secrets
           filters:
             branches:
               ignore: /.*/
