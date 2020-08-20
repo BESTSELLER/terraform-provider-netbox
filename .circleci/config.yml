@@ -1,5 +1,9 @@
 version: 2.1
 
+orbs:
+  secret-injector: bestsellerit/secret-injector@0.2.32
+
+
 jobs:
   test:
     docker:
