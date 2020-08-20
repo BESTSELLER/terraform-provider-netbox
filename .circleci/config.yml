@@ -18,7 +18,7 @@ jobs:
           command: |
             source /tmp/secrets.env
 
-            echo -e "$GPG_PRIVATE_KEY" | gpg --import
+            echo -e "$GPG_PRIVATE_KEY" | base64 --decode | gpg --import
             gpg --no-tty --batch --passphrase "$GPG_PASSPHRASE" --pinentry-mode loopback --output secrets.env --decrypt secrets.env.gpg
             curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
             goreleaser release --snapshot --rm-dist
