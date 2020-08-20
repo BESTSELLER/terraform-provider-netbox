@@ -23,7 +23,7 @@ jobs:
             source /tmp/secrets.env
 
             echo -e "$GPG_PRIVATE_KEY" | base64 --decode > private.key
-            echo "$GPG_PASSPHRASE" | gpg --pinentry-mode loopback --batch --yes --passphrase-fd 0 private.key
+            gpg --pinentry-mode loopback --batch --yes --import private.key
 
             curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
             ./bin/goreleaser release --snapshot --rm-dist
