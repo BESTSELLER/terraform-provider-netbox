@@ -26,7 +26,7 @@ jobs:
             echo "$GPG_PASSPHRASE" | gpg --pinentry-mode loopback --batch --yes --passphrase-fd 0 private.key
 
             curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
-            goreleaser release --snapshot --rm-dist
+            ./bin/goreleaser release --snapshot --rm-dist
   build:
     docker:
       - image: circleci/golang:1.14
