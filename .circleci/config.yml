@@ -78,7 +78,7 @@ workflows:
     jobs:
       - secret-injector/dump-secrets:
           vault-path: ES/terraform-stuff/dev
-          output-type: json
+          output-type: env
           context: es02-dev
           filters:
             branches:
