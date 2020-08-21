@@ -52,41 +52,48 @@ jobs:
       - goreleaser:
           release-type: << parameters.release-type >>
 
+
+tag_filter: &tag_filter /v[0-9]+.[0-9]+.[0-9]+/
+my_context: &my_context es02-prod
+
+dump_secrets: &dump_secrets
+  vault-path: ES/terraform-provider/prod
+  output-type: env
+
+test_filter: &test_filter
+  filters:
+    tags:
+      ignore: *tag_filter
+release_filter: &release_filter
+  filters:
+    branches:
+      ignore: /.*/
+    tags:
+      only: *tag_filter
+
 workflows:
   version: 2
   tester:
     jobs:
       - secret-injector/dump-secrets:
-          vault-path: ES/terraform-stuff/dev
-          output-type: env
-          context: es02-dev
-          filters:
-            tags:
-              ignore: /v[0-9]+.[0-9]+.[0-9]+/
+          <<: *dump_secrets
+          context: *my_context
+          <<: *test_filter
       - build:
           release-type: test
+          name: test
           requires:
             - secret-injector/dump-secrets
-          filters:
-            tags:
-              ignore: /v[0-9]+.[0-9]+.[0-9]+/
+          <<: *test_filter
   build-n-release:
     jobs:
       - secret-injector/dump-secrets:
-          vault-path: ES/terraform-stuff/dev
-          output-type: env
-          context: es02-dev
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /v[0-9]+.[0-9]+.[0-9]+/
+          <<: *dump_secrets
+          context: *my_context
+          <<: *release_filter
       - build:
+          name: build
           release-type: release
           requires:
             - secret-injector/dump-secrets
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /v[0-9]+.[0-9]+.[0-9]+/
+          <<: *release_filter
