@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/BESTSELLER/terraform-provider-harbor/client"
+	"github.com/BESTSELLER/terraform-provider-netbox/client"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
