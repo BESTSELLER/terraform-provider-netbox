@@ -1,6 +1,6 @@
 module github.com/BESTSELLER/terraform-provider-netbox
 
-go 1.14
+go 1.15
 
 require (
 
