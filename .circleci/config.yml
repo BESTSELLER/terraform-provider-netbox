@@ -40,7 +40,7 @@ jobs:
         enum: ["test", "release"]
         default: "test"
     docker:
-      - image: cimg/golang:1.15
+      - image: cimg/go:1.15
     steps:
       - checkout
       - attach_workspace:
