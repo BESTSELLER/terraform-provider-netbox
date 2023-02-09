@@ -33,7 +33,7 @@ func testAccPreCheck(t *testing.T) {
 		t.Fatal("NETBOX_ENDPOINT must be set for acceptance tests")
 	}
 	if v := os.Getenv("NETBOX_API_TOKEN"); v == "" {
-		t.Fatal("NETNOX_API_TOKEN must be set for acceptance tests")
+		t.Fatal("NETBOX_API_TOKEN must be set for acceptance tests")
 	}
 
 }
@@ -51,7 +51,7 @@ func testAccCheckResourceExists(resource string) resource.TestCheckFunc {
 		name := rs.Primary.ID
 
 		apiClient := testAccProvider.Meta().(*client.Client)
-		_, _, err := apiClient.SendRequest("GET", name, nil, 200)
+		_, err := apiClient.SendRequest("GET", name, nil, 200)
 		if err != nil {
 			return fmt.Errorf("error fetching item with resource %s. %s", resource, err)
 		}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 
@@ -46,7 +47,7 @@ func (client *Client) GetPrefix(newCidr string) (*models.ReponsePrefix, error) {
 	}
 	prefixPath := models.PathAvailablePrefixes + "?prefix=" + newCidr
 
-	resp, err := client.sendRequest("GET", prefixPath, nil, 200)
+	resp, err := client.SendRequest("GET", prefixPath, nil, 200)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +65,7 @@ func (client *Client) GetPrefix(newCidr string) (*models.ReponsePrefix, error) {
 func (client *Client) GetSite(siteName string) (*models.ResponseSites, error) {
 	sitesPath := "/dcim/sites/?name=" + siteName
 
-	resp, err := client.sendRequest("GET", sitesPath, nil, 200)
+	resp, err := client.SendRequest("GET", sitesPath, nil, 200)
 	if err != nil {
 		return nil, err
 	}
@@ -80,17 +81,17 @@ func (client *Client) GetSite(siteName string) (*models.ResponseSites, error) {
 
 // DeletePrefix will delete a given prefix
 func (client *Client) DeletePrefix(d *schema.ResourceData) error {
-	_, err := client.sendRequest("DELETE", d.Id(), nil, 204)
+	_, err := client.SendRequest("DELETE", d.Id(), nil, 204)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-//UpdatePrefix will patch a prefix
+// UpdatePrefix will patch a prefix
 func (client *Client) UpdatePrefix(d *schema.ResourceData) error {
 	body := AvailablePrefixBody(d)
-	_, err := client.sendRequest("PATCH", d.Id(), body, 200)
+	_, err := client.SendRequest("PATCH", d.Id(), body, 200)
 	if err != nil {
 		return err
 	}
@@ -101,7 +102,7 @@ func (client *Client) UpdatePrefix(d *schema.ResourceData) error {
 func (client *Client) CreatePrefix(body *models.AvailablePrefixes, parentID int) (*models.ReponseAvailablePrefixes, error) {
 	path := fmt.Sprintf("%s%d/available-prefixes/", models.PathAvailablePrefixes, parentID)
 
-	resp, err := client.sendRequest("POST", path, body, 201)
+	resp, err := client.SendRequest("POST", path, body, 201)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +116,7 @@ func (client *Client) CreatePrefix(body *models.AvailablePrefixes, parentID int)
 
 // GetAvailablePrefix will return all available prefixes
 func (client *Client) GetAvailablePrefix(id string) (*models.GetAvailablePrefixResponse, error) {
-	resp, err := client.sendRequest("GET", id, nil, 200)
+	resp, err := client.SendRequest("GET", id, nil, 200)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +129,7 @@ func (client *Client) GetAvailablePrefix(id string) (*models.GetAvailablePrefixR
 	re := regexp.MustCompile(`(?m)(?:[0-9]{1,3}\.){3}[0-9]{1,3}/`)
 	prefixLength, _ := strconv.Atoi(re.ReplaceAllString(jsonData.Prefix, ""))
 
-	resp2, err := client.sendRequest("GET", models.PathAvailablePrefixes+"?q="+jsonData.Prefix, nil, 200)
+	resp2, err := client.SendRequest("GET", models.PathAvailablePrefixes+"?q="+jsonData.Prefix, nil, 200)
 	if err != nil {
 		return nil, err
 	}
@@ -139,9 +140,10 @@ func (client *Client) GetAvailablePrefix(id string) (*models.GetAvailablePrefixR
 	}
 
 	returnValue := &models.GetAvailablePrefixResponse{
-		PrefixLength:   prefixLength,
-		Description:    jsonData.Description,
-		ID:             models.PathAvailablePrefixes + strconv.Itoa(jsonData.ID) + "/",
+		PrefixLength: prefixLength,
+		Description:  jsonData.Description,
+		// ID:             models.PathAvailablePrefixes + strconv.Itoa(jsonData.ID) + "/",
+		ID:             fmt.Sprintf("%s%d/", models.PathAvailablePrefixes, jsonData.ID),
 		ParentPrefixID: jsonData2.Results[0].ID,
 		Prefix:         jsonData.Prefix,
 		PrefixID:       jsonData.ID,
@@ -149,8 +151,14 @@ func (client *Client) GetAvailablePrefix(id string) (*models.GetAvailablePrefixR
 	return returnValue, nil
 }
 
-func (client *Client) sendRequest(method string, path string, payload interface{}, statusCode int) (value string, err error) {
-	url := client.endpoint + path
+func (client *Client) SendRequest(method string, path string, payload interface{}, statusCode int) (value string, err error) {
+	baseUrl, err := url.Parse(client.endpoint)
+	if err != nil {
+		return "", err
+	}
+
+	url := fmt.Sprintf("%s/%s", baseUrl.String(), path)
+
 	httpClient := &http.Client{}
 
 	b := new(bytes.Buffer)

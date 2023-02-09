@@ -21,7 +21,7 @@ func TestAccRegistryBasic(t *testing.T) {
 
 					testAccCheckResourceExists("netbox_available_prefix.main"),
 					resource.TestCheckResourceAttr(
-						"netbox_available_prefix.main", "description", "bw-testing-terraform"),
+						"netbox_available_prefix.main", "description", "acc-testing-terraform"),
 				),
 			},
 		},
@@ -36,7 +36,7 @@ func testAccCheckRegistryDestroy(s *terraform.State) error {
 			continue
 		}
 
-		resp, _, err := apiClient.SendRequest("GET", rs.Primary.ID, nil, 404)
+		resp, err := apiClient.SendRequest("GET", rs.Primary.ID, nil, 404)
 		if err != nil {
 			return fmt.Errorf("Resouse was not delete \n %s", resp)
 		}
@@ -50,10 +50,36 @@ func testAccCheckAvailablePrefix() string {
 
 	return fmt.Sprintf(`
 
+	data "netbox_prefix" "prefix" {
+		cidr_notation = "172.24.0.0/13"
+	}
+
 	resource "netbox_available_prefix" "main" {
-		parent_prefix_id = "758"
-		prefix_length = 26
+		parent_prefix_id = data.netbox_prefix.prefix.prefix_id
+		prefix_length = 19
 		description = "acc-testing-terraform"
+		status        = "active"
+		site          = data.netbox_prefix.prefix.site_id
+		tenant        = data.netbox_prefix.prefix.tenant_id
+		role          = data.netbox_prefix.prefix.role_id
+	}
+	resource "netbox_available_prefix" "main2" {
+		parent_prefix_id = data.netbox_prefix.prefix.prefix_id
+		prefix_length = 20
+		description = "acc-testing-terraform"
+		status        = "active"
+		site          = data.netbox_prefix.prefix.site_id
+		tenant        = data.netbox_prefix.prefix.tenant_id
+		role          = data.netbox_prefix.prefix.role_id
+	}
+	resource "netbox_available_prefix" "main3" {
+		parent_prefix_id = data.netbox_prefix.prefix.prefix_id
+		prefix_length = 28
+		description = "acc-testing-terraform"
+		status        = "active"
+		site          = data.netbox_prefix.prefix.site_id
+		tenant        = data.netbox_prefix.prefix.tenant_id
+		role          = data.netbox_prefix.prefix.role_id
 	}
 
 	`)
