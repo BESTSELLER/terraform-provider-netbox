@@ -12,9 +12,7 @@ commands:
       - run:
           name: Install GoReleaser
           command: |
-            curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
-            sudo mv ./bin/goreleaser /usr/bin/goreleaser
-            rm -rf ./bin
+            go install github.com/goreleaser/goreleaser@latest
       - run:
           name: Import private key
           command: |
