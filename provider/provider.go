@@ -35,7 +35,7 @@ func Provider() terraform.ResourceProvider {
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	endpoint := d.Get("endpoint").(string) + "api"
+	endpoint := d.Get("endpoint").(string)
 	apiToken := d.Get("api_token").(string)
 
 	return client.NewClient(endpoint, apiToken), nil
