@@ -58,16 +58,28 @@ func testAccCheckAvailablePrefix() string {
 		parent_prefix_id = data.netbox_prefix.prefix.prefix_id
 		prefix_length = 19
 		description = "acc-testing-terraform"
+		status        = "active"
+		site          = data.netbox_prefix.prefix.site_id
+		tenant        = data.netbox_prefix.prefix.tenant_id
+		role          = data.netbox_prefix.prefix.role_id
 	}
 	resource "netbox_available_prefix" "main2" {
 		parent_prefix_id = data.netbox_prefix.prefix.prefix_id
 		prefix_length = 20
 		description = "acc-testing-terraform"
+		status        = "active"
+		site          = data.netbox_prefix.prefix.site_id
+		tenant        = data.netbox_prefix.prefix.tenant_id
+		role          = data.netbox_prefix.prefix.role_id
 	}
 	resource "netbox_available_prefix" "main3" {
 		parent_prefix_id = data.netbox_prefix.prefix.prefix_id
 		prefix_length = 28
 		description = "acc-testing-terraform"
+		status        = "active"
+		site          = data.netbox_prefix.prefix.site_id
+		tenant        = data.netbox_prefix.prefix.tenant_id
+		role          = data.netbox_prefix.prefix.role_id
 	}
 
 	`)

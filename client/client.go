@@ -156,7 +156,8 @@ func (client *Client) SendRequest(method string, path string, payload interface{
 	if err != nil {
 		return "", err
 	}
-	url := baseUrl.JoinPath(path).String()
+
+	url := fmt.Sprintf("%s/%s", baseUrl.String(), path)
 
 	httpClient := &http.Client{}
 
