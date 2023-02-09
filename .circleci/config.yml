@@ -40,7 +40,7 @@ jobs:
         enum: ["test", "release"]
         default: "test"
     docker:
-      - image: cimg/go:1.15
+      - image: cimg/go:1.19
     steps:
       - checkout
       - attach_workspace:
@@ -68,7 +68,6 @@ release_filter: &release_filter
       only: *tag_filter
 
 workflows:
-  version: 2
   tester:
     jobs:
       - secret-injector/dump-secrets:
