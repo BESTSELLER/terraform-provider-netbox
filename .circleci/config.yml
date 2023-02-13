@@ -39,7 +39,7 @@ jobs:
         default: "test"
     docker:
       - image: cimg/go:1.20.0
-    resource_class: xlarge
+    resource_class: 2xlarge
     steps:
       - checkout
       - attach_workspace:
