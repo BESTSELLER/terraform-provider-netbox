@@ -50,10 +50,6 @@ jobs:
 tag_filter: &tag_filter /v[0-9]+.[0-9]+.[0-9]+/
 my_context: &my_context es02-prod
 
-dump_secrets: &dump_secrets
-  vault-path: ES/terraform-provider/prod
-  output-type: env
-
 test_filter: &test_filter
   filters:
     tags:
@@ -68,8 +64,8 @@ release_filter: &release_filter
 workflows:
   tester:
     jobs:
-      - secret-injector/dump-secrets:
-          <<: *dump_secrets
+      - secret-injector/dump-secrets-yaml:
+          secret-file: ci-secrets.yaml
           context: *my_context
           <<: *test_filter
       - build:
@@ -80,8 +76,8 @@ workflows:
           <<: *test_filter
   build-n-release:
     jobs:
-      - secret-injector/dump-secrets:
-          <<: *dump_secrets
+      - secret-injector/dump-secrets-yaml:
+          secret-file: ci-secrets.yaml
           context: *my_context
           <<: *release_filter
       - build:
