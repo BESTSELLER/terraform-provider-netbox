@@ -17,7 +17,7 @@ func dataDeviceType() *schema.Resource {
 				Required:    true,
 				Description: "A unique integer value identifying this device type.",
 			},
-			"displayName": {
+			"displayname": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The display name of the device type.",
@@ -33,7 +33,7 @@ func dataDeviceType() *schema.Resource {
 							Computed:    true,
 							Description: "A unique integer value identifying this manufacturer.",
 						},
-						"displayName": {
+						"displayname": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The display name of the manufacturer.",
@@ -61,12 +61,12 @@ func dataDeviceType() *schema.Resource {
 				Computed:    true,
 				Description: "The slug of the device type.",
 			},
-			"partNumber": {
+			"part_number": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The part number of the device type.",
 			},
-			"uHeight": {
+			"u_height": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "The height of the device type.",
@@ -76,7 +76,7 @@ func dataDeviceType() *schema.Resource {
 				Computed:    true,
 				Description: "The description of the device type.",
 			},
-			"customFields": {
+			"custom_fields": {
 				Type:        schema.TypeMap,
 				Computed:    true,
 				Description: "The custom fields of the device type.",
@@ -98,14 +98,14 @@ func dataDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("displayName", resp.DisplayName)
+	d.Set("displayname", resp.DisplayName)
 	d.Set("manufacturer", resp.Manufacturer)
 	d.Set("model", resp.Model)
 	d.Set("slug", resp.Slug)
-	d.Set("partNumber", resp.PartNumber)
-	d.Set("uHeight", resp.UHeight)
+	d.Set("part_number", resp.PartNumber)
+	d.Set("u_height", resp.UHeight)
 	d.Set("description", resp.Descrption)
-	d.Set("customFields", resp.CustomFields)
+	d.Set("custom_fields", resp.CustomFields)
 	d.SetId(strconv.Itoa(resp.ID))
 	return nil
 }
