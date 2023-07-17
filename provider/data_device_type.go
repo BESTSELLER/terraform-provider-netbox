@@ -89,7 +89,7 @@ func dataDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*client.Client)
 
 	id := d.Get("id").(int)
-	if id > 0 {
+	if id < 0 {
 		return fmt.Errorf("[ERROR] 'id' cannot be less than 0")
 	}
 
