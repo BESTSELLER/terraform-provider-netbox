@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -185,7 +185,7 @@ func (client *Client) SendRequest(method string, path string, payload interface{
 		return "", err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -208,6 +208,7 @@ func (client *Client) GetDeviceType(id int) (*models.ResponseDeviceTypes, error)
 	if err != nil {
 		return nil, err
 	}
+
 	var jsonData models.ResponseDeviceTypes
 	err = json.Unmarshal([]byte(resp), &jsonData)
 	if err != nil {
