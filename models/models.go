@@ -154,11 +154,9 @@ type ResponseDeviceTypes struct {
 		Name        string `json:"name"`
 		Slug        string `json:"slug"`
 	} `json:"manufacturer"`
-	Model        string `json:"model"`
-	Slug         string `json:"slug"`
-	PartNumber   string `json:"part_number"`
-	UHeight      int    `json:"u_height"`
-	Descrption   string `json:"description"`
-	CustomFields struct {
-	} `json:"custom_fields"`
+	Model        string      `json:"model"`
+	Slug         string      `json:"slug"`
+	PartNumber   string      `json:"part_number"`
+	Descrption   string      `json:"description"`
+	CustomFields interface{} `json:"custom_fields"`
 }

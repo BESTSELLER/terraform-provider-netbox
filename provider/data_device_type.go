@@ -66,11 +66,6 @@ func dataDeviceType() *schema.Resource {
 				Computed:    true,
 				Description: "The part number of the device type.",
 			},
-			"u_height": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: "The height of the device type.",
-			},
 			"description": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -80,6 +75,11 @@ func dataDeviceType() *schema.Resource {
 				Type:        schema.TypeMap,
 				Computed:    true,
 				Description: "The custom fields of the device type.",
+				Default:     nil,
+				Elem: &schema.Schema{
+					Type:    schema.TypeString,
+					Default: nil,
+				},
 			},
 		},
 	}
@@ -98,14 +98,25 @@ func dataDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	cf := getCustomFields(resp.CustomFields)
+	if cf != nil {
+		d.Set("custom_fields", cf)
+	}
+
 	d.Set("displayname", resp.DisplayName)
 	d.Set("manufacturer", resp.Manufacturer)
 	d.Set("model", resp.Model)
 	d.Set("slug", resp.Slug)
 	d.Set("part_number", resp.PartNumber)
-	d.Set("u_height", resp.UHeight)
 	d.Set("description", resp.Descrption)
-	d.Set("custom_fields", resp.CustomFields)
 	d.SetId(strconv.Itoa(resp.ID))
 	return nil
+}
+
+func getCustomFields(cf interface{}) map[string]interface{} {
+	cfm, ok := cf.(map[string]interface{})
+	if !ok || len(cfm) == 0 {
+		return nil
+	}
+	return cfm
 }
