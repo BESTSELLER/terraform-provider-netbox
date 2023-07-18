@@ -3,6 +3,7 @@ package models
 import "time"
 
 var PathAvailablePrefixes = "/ipam/prefixes/"
+var PathDeviceTypes = "/dcim/device-types/"
 
 type ReponseAvailablePrefixes struct {
 	ID     int `json:"id"`
@@ -98,7 +99,7 @@ type ResponseSites struct {
 	} `json:"results"`
 }
 
-type ReponsePrefix struct {
+type ResponsePrefix struct {
 	Count    int         `json:"count"`
 	Next     interface{} `json:"next"`
 	Previous interface{} `json:"previous"`
@@ -142,4 +143,20 @@ type ReponsePrefix struct {
 		Created     string    `json:"created"`
 		LastUpdated time.Time `json:"last_updated"`
 	} `json:"results"`
+}
+
+type ResponseDeviceTypes struct {
+	ID           int    `json:"id"`
+	DisplayName  string `json:"display"`
+	Manufacturer struct {
+		ID          int    `json:"id"`
+		DisplayName string `json:"display"`
+		Name        string `json:"name"`
+		Slug        string `json:"slug"`
+	} `json:"manufacturer"`
+	Model        string      `json:"model"`
+	Slug         string      `json:"slug"`
+	PartNumber   string      `json:"part_number"`
+	Descrption   string      `json:"description"`
+	CustomFields interface{} `json:"custom_fields"`
 }

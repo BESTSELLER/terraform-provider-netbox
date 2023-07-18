@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -41,7 +41,7 @@ func AvailablePrefixBody(d *schema.ResourceData) models.AvailablePrefixes {
 }
 
 // GetPrefix will return a prefix
-func (client *Client) GetPrefix(newCidr string) (*models.ReponsePrefix, error) {
+func (client *Client) GetPrefix(newCidr string) (*models.ResponsePrefix, error) {
 	if newCidr == "" {
 		return nil, fmt.Errorf("[ERROR] 'cidr_notation' is empty")
 	}
@@ -52,7 +52,7 @@ func (client *Client) GetPrefix(newCidr string) (*models.ReponsePrefix, error) {
 		return nil, err
 	}
 
-	var jsonData models.ReponsePrefix
+	var jsonData models.ResponsePrefix
 	err = json.Unmarshal([]byte(resp), &jsonData)
 	if err != nil {
 		return nil, err
@@ -185,7 +185,7 @@ func (client *Client) SendRequest(method string, path string, payload interface{
 		return "", err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -200,4 +200,20 @@ func (client *Client) SendRequest(method string, path string, payload interface{
 	}
 
 	return strbody, nil
+}
+
+func (client *Client) GetDeviceType(id int) (*models.ResponseDeviceTypes, error) {
+	path := fmt.Sprintf("%s%d/", models.PathDeviceTypes, id)
+	resp, err := client.SendRequest("GET", path, nil, 200)
+	if err != nil {
+		return nil, err
+	}
+
+	var jsonData models.ResponseDeviceTypes
+	err = json.Unmarshal([]byte(resp), &jsonData)
+	if err != nil {
+		return nil, err
+	}
+
+	return &jsonData, nil
 }

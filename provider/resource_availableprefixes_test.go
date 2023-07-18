@@ -48,7 +48,7 @@ func testAccCheckRegistryDestroy(s *terraform.State) error {
 
 func testAccCheckAvailablePrefix() string {
 
-	return fmt.Sprintf(`
+	return (`
 
 	data "netbox_prefix" "prefix" {
 		cidr_notation = "172.24.0.0/13"
