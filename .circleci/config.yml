@@ -38,7 +38,7 @@ jobs:
         enum: ["test", "release"]
         default: "test"
     docker:
-      - image: cimg/go:1.20.7
+      - image: cimg/go:1.21.0
     resource_class: 2xlarge
     steps:
       - checkout
