@@ -66,6 +66,7 @@ workflows:
   tester:
     jobs:
       - secret-injector/dump-secrets-yaml:
+          vault-oidc: true
           secret-file: ci-secrets.yaml
           context: *my_context
           <<: *test_filter
@@ -78,6 +79,7 @@ workflows:
   build-n-release:
     jobs:
       - secret-injector/dump-secrets-yaml:
+          vault-oidc: true
           secret-file: ci-secrets.yaml
           context: *my_context
           <<: *release_filter
