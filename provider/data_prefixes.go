@@ -67,8 +67,8 @@ func dataPrefixRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("prefix_id", resp.Results[0].ID)
 	d.Set("role_id", resp.Results[0].Role.ID)
 	d.Set("role_name", resp.Results[0].Role.Name)
-	d.Set("site_id", resp.Results[0].Site.ID)
-	d.Set("site_name", resp.Results[0].Site.Name)
+	d.Set("site_id", resp.Results[0].Scope.ID)
+	d.Set("site_name", resp.Results[0].Scope.Name)
 	d.Set("tenant_id", resp.Results[0].Tenant.ID)
 	d.Set("tenant_name", resp.Results[0].Tenant.ID)
 

@@ -110,12 +110,12 @@ type ResponsePrefix struct {
 			Label string `json:"label"`
 		} `json:"family"`
 		Prefix string `json:"prefix"`
-		Site   struct {
+		Scope  struct {
 			ID   int    `json:"id"`
 			URL  string `json:"url"`
 			Name string `json:"name"`
 			Slug string `json:"slug"`
-		} `json:"site"`
+		} `json:"scope"`
 		Vrf    interface{} `json:"vrf"`
 		Tenant struct {
 			ID   int    `json:"id"`
