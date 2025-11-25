@@ -1,6 +1,6 @@
 module github.com/BESTSELLER/terraform-provider-netbox
 
-go 1.24.0
+go 1.25.4
 
 require github.com/hashicorp/terraform-plugin-sdk v1.17.2
 
