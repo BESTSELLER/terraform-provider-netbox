@@ -8,10 +8,9 @@
       "mode": "test",
       "program": "${workspaceFolder}/provider",
       "env": {
-        "NETBOX_ENDPOINT": "",
-        "NETBOX_API_TOKEN": "",
         "TF_ACC": "true"
       },
+      "envFile": "${workspaceFolder}/.env",
       "args": ["-test.v", "-test.run", "^TestAccRegistryBasic$"]
     }
   ]
