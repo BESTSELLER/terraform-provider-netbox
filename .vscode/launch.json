@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug TestAccRegistryBasic",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceFolder}/provider",
+      "env": {
+        "NETBOX_ENDPOINT": "",
+        "NETBOX_API_TOKEN": "",
+        "TF_ACC": "true"
+      },
+      "args": ["-test.v", "-test.run", "^TestAccRegistryBasic$"]
+    }
+  ]
+}
