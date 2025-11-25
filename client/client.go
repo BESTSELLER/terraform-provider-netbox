@@ -11,7 +11,7 @@ import (
 	"strconv"
 
 	"github.com/BESTSELLER/terraform-provider-netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Client holds the client info for netbox
@@ -151,15 +151,16 @@ func (client *Client) GetAvailablePrefix(id string) (*models.GetAvailablePrefixR
 	return returnValue, nil
 }
 
+// SendRequest sends a request to the netbox api
 func (client *Client) SendRequest(method string, path string, payload interface{}, statusCode int) (value string, err error) {
-	baseUrl, err := url.Parse(client.endpoint)
+	baseURL, err := url.Parse(client.endpoint)
 	if err != nil {
 		return "", err
 	}
 
-	baseUrl = baseUrl.JoinPath("api")
+	baseURL = baseURL.JoinPath("api")
 
-	url := fmt.Sprintf("%s/%s", baseUrl.String(), path)
+	url := fmt.Sprintf("%s/%s", baseURL.String(), path)
 
 	httpClient := &http.Client{}
 
@@ -203,6 +204,7 @@ func (client *Client) SendRequest(method string, path string, payload interface{
 	return strbody, nil
 }
 
+// GetDeviceType returns a device type
 func (client *Client) GetDeviceType(id int) (*models.ResponseDeviceTypes, error) {
 	path := fmt.Sprintf("%s%d/", models.PathDeviceTypes, id)
 	resp, err := client.SendRequest("GET", path, nil, 200)

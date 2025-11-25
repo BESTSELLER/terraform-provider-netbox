@@ -1,18 +1,19 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 	"strconv"
 	"strings"
 
 	"github.com/BESTSELLER/terraform-provider-netbox/client"
 	"github.com/BESTSELLER/terraform-provider-netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataPrefix() *schema.Resource {
 	return &schema.Resource{
-		Read: dataPrefixRead,
+		ReadContext: dataPrefixRead,
 		Schema: map[string]*schema.Schema{
 			"cidr_notation": {
 				Type:     schema.TypeString,
@@ -50,18 +51,18 @@ func dataPrefix() *schema.Resource {
 	}
 }
 
-func dataPrefixRead(d *schema.ResourceData, m interface{}) error {
+func dataPrefixRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*client.Client)
 
 	cidr := d.Get("cidr_notation").(string)
 	newCidr := strings.Replace(cidr, "/", "%2F", 1)
 	if newCidr == "" {
-		return fmt.Errorf("[ERROR] 'cidr_notation' is empty")
+		return diag.Errorf("'cidr_notation' is empty")
 	}
 
 	resp, err := apiClient.GetPrefix(newCidr)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.Set("prefix_id", resp.Results[0].ID)
@@ -70,7 +71,7 @@ func dataPrefixRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("site_id", resp.Results[0].Scope.ID)
 	d.Set("site_name", resp.Results[0].Scope.Name)
 	d.Set("tenant_id", resp.Results[0].Tenant.ID)
-	d.Set("tenant_name", resp.Results[0].Tenant.ID)
+	d.Set("tenant_name", resp.Results[0].Tenant.Name)
 
 	id := models.PathAvailablePrefixes + strconv.Itoa(resp.Results[0].ID) + "/"
 	d.SetId(id)

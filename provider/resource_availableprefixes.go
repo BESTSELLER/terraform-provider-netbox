@@ -1,11 +1,13 @@
 package provider
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/BESTSELLER/terraform-provider-netbox/client"
 	"github.com/BESTSELLER/terraform-provider-netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceAvailablePrefixes() *schema.Resource {
@@ -17,7 +19,7 @@ func resourceAvailablePrefixes() *schema.Resource {
 				ForceNew: true,
 			},
 			"prefix_id": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"prefix_length": {
@@ -51,17 +53,17 @@ func resourceAvailablePrefixes() *schema.Resource {
 				Optional: true,
 			},
 		},
-		Create: resourceAvailablePrefixCreate,
-		Read:   resourceAvailablePrefixRead,
-		Update: resourceAvailablePrefixUpdate,
-		Delete: resourceAvailablePrefixDelete,
+		CreateContext: resourceAvailablePrefixCreate,
+		ReadContext:   resourceAvailablePrefixRead,
+		UpdateContext: resourceAvailablePrefixUpdate,
+		DeleteContext: resourceAvailablePrefixDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 	}
 }
 
-func resourceAvailablePrefixCreate(d *schema.ResourceData, m interface{}) error {
+func resourceAvailablePrefixCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*client.Client)
 
 	body := client.AvailablePrefixBody(d)
@@ -69,20 +71,20 @@ func resourceAvailablePrefixCreate(d *schema.ResourceData, m interface{}) error 
 
 	resp, err := apiClient.CreatePrefix(&body, parentID)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	id := models.PathAvailablePrefixes + strconv.Itoa(resp.ID) + "/"
 	d.SetId(id)
-	return resourceAvailablePrefixRead(d, m)
+	return resourceAvailablePrefixRead(ctx, d, m)
 }
 
-func resourceAvailablePrefixRead(d *schema.ResourceData, m interface{}) error {
+func resourceAvailablePrefixRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*client.Client)
 
 	resp, err := apiClient.GetAvailablePrefix(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.Set("cidr_notation", resp.Prefix)
@@ -94,22 +96,22 @@ func resourceAvailablePrefixRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceAvailablePrefixUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceAvailablePrefixUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*client.Client)
 
 	err := apiClient.UpdatePrefix(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceAvailablePrefixRead(d, m)
+	return resourceAvailablePrefixRead(ctx, d, m)
 }
 
-func resourceAvailablePrefixDelete(d *schema.ResourceData, m interface{}) error {
+func resourceAvailablePrefixDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*client.Client)
 	err := apiClient.DeletePrefix(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
