@@ -158,21 +158,22 @@ func (client *Client) SendRequest(method string, path string, payload interface{
 	}
 
 	baseUrl = baseUrl.JoinPath("api")
-	if err != nil {
-		return "", err
-	}
 
 	url := fmt.Sprintf("%s/%s", baseUrl.String(), path)
 
 	httpClient := &http.Client{}
 
-	b := new(bytes.Buffer)
-	err = json.NewEncoder(b).Encode(payload)
-	if err != nil {
-		return "", err
+	var requestBody io.Reader
+	if payload != nil {
+		b := new(bytes.Buffer)
+		err = json.NewEncoder(b).Encode(payload)
+		if err != nil {
+			return "", err
+		}
+		requestBody = b
 	}
 
-	req, err := http.NewRequest(method, url, b)
+	req, err := http.NewRequest(method, url, requestBody)
 	if err != nil {
 		return "", err
 	}
