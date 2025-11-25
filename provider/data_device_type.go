@@ -1,16 +1,17 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 	"strconv"
 
 	"github.com/BESTSELLER/terraform-provider-netbox/client"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataDeviceType() *schema.Resource {
 	return &schema.Resource{
-		Read: dataDeviceTypeRead,
+		ReadContext: dataDeviceTypeRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:        schema.TypeInt,
@@ -23,7 +24,7 @@ func dataDeviceType() *schema.Resource {
 				Description: "The display name of the device type.",
 			},
 			"manufacturer": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "The manufacturer object of the device type.",
 				Elem: &schema.Resource{
@@ -85,17 +86,17 @@ func dataDeviceType() *schema.Resource {
 	}
 }
 
-func dataDeviceTypeRead(d *schema.ResourceData, m interface{}) error {
+func dataDeviceTypeRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*client.Client)
 
 	id := d.Get("id").(int)
 	if id < 0 {
-		return fmt.Errorf("[ERROR] 'id' cannot be less than 0")
+		return diag.Errorf("'id' cannot be less than 0")
 	}
 
 	resp, err := apiClient.GetDeviceType(id)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	cf := getCustomFields(resp.CustomFields)

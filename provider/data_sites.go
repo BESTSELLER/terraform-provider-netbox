@@ -1,16 +1,18 @@
 package provider
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/BESTSELLER/terraform-provider-netbox/client"
 	"github.com/BESTSELLER/terraform-provider-netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSites() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSitesRead,
+		ReadContext: dataSitesRead,
 		Schema: map[string]*schema.Schema{
 			"site_id": {
 				Type:     schema.TypeInt,
@@ -33,14 +35,14 @@ func dataSites() *schema.Resource {
 	}
 }
 
-func dataSitesRead(d *schema.ResourceData, m interface{}) error {
+func dataSitesRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*client.Client)
 
 	siteName := d.Get("name").(string)
 
 	resp, err := apiClient.GetSite(siteName)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.Set("site_id", resp.Results[0].ID)

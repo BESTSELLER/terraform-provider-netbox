@@ -11,7 +11,7 @@ import (
 	"strconv"
 
 	"github.com/BESTSELLER/terraform-provider-netbox/models"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Client holds the client info for netbox
