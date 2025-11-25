@@ -2,9 +2,13 @@ package models
 
 import "time"
 
+// PathAvailablePrefixes is the path to available prefixes
 var PathAvailablePrefixes = "/ipam/prefixes/"
+
+// PathDeviceTypes is the path to device types
 var PathDeviceTypes = "/dcim/device-types/"
 
+// ReponseAvailablePrefixes is the response for available prefixes
 type ReponseAvailablePrefixes struct {
 	ID     int `json:"id"`
 	Family struct {
@@ -28,6 +32,8 @@ type ReponseAvailablePrefixes struct {
 	Created     string        `json:"created"`
 	LastUpdated time.Time     `json:"last_updated"`
 }
+
+// AvailablePrefixes is the body for available prefixes
 type AvailablePrefixes struct {
 	PrefixLength int    `json:"prefix_length"`
 	Site         int    `json:"site,omitempty"`
@@ -37,6 +43,7 @@ type AvailablePrefixes struct {
 	Description  string `json:"description,omitempty"`
 }
 
+// ResponeListOfPrefixes is the response for list of prefixes
 type ResponeListOfPrefixes struct {
 	Count    int                        `json:"count"`
 	Next     interface{}                `json:"next"`
@@ -44,6 +51,7 @@ type ResponeListOfPrefixes struct {
 	Results  []ReponseAvailablePrefixes `json:"results"`
 }
 
+// GetAvailablePrefixResponse is the response for get available prefix
 type GetAvailablePrefixResponse struct {
 	Prefix         string `json:"prefix"`
 	Description    string `json:"description"`
@@ -53,6 +61,7 @@ type GetAvailablePrefixResponse struct {
 	ID             string `json:"id"`
 }
 
+// ResponseSites is the response for sites
 type ResponseSites struct {
 	Count    int         `json:"count"`
 	Next     interface{} `json:"next"`
@@ -99,6 +108,7 @@ type ResponseSites struct {
 	} `json:"results"`
 }
 
+// ResponsePrefix is the response for prefix
 type ResponsePrefix struct {
 	Count    int         `json:"count"`
 	Next     interface{} `json:"next"`
@@ -145,6 +155,7 @@ type ResponsePrefix struct {
 	} `json:"results"`
 }
 
+// ResponseDeviceTypes is the response for device types
 type ResponseDeviceTypes struct {
 	ID           int    `json:"id"`
 	DisplayName  string `json:"display"`
