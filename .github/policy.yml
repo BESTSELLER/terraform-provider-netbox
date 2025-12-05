@@ -3,9 +3,9 @@ policy:
     - and:
         - or:
             - tests passed
-            - engineering services has approved
+            - developer-platform has approved
         - or:
-            - engineering services has approved
+            - developer-platform has approved
             - dependabot is making the PR
   disapproval:
     requires:
@@ -16,14 +16,14 @@ approval_rules:
     requires:
       conditions:
         has_successful_status:
-        - "tester"
+          - "tester"
       count: 0
 
-  - name: engineering services has approved
+  - name: developer-platform has approved
     requires:
       count: 1
       teams:
-        - "BESTSELLER/engineering-services"
+        - "BESTSELLER/developer-platform"
   - name: dependabot is making the PR
     requires:
       conditions:
